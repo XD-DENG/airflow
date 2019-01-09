@@ -161,8 +161,7 @@ celery = [
 cgroups = [
     'cgroupspy>=0.1.4',
 ]
-# major update coming soon, clamp to 0.x
-cloudant = ['cloudant>=0.5.9,<2.0']
+cloudant = ['cloudant>=0.5.9,<=2.10.2']
 crypto = ['cryptography>=0.9.3']
 dask = [
     'distributed>=1.17.1, <2'
