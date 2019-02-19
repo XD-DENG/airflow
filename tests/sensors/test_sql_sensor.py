@@ -92,7 +92,7 @@ class SqlSensorTests(unittest.TestCase):
         )
         t2.run(start_date=DEFAULT_DATE, end_date=DEFAULT_DATE, ignore_ti_state=True)
 
-    @mock.patch('airflow.sensors.sql_sensor.BaseHook')
+    @mock.patch('airflow.sensors.sql_sensor.SqlHook')
     def test_sql_sensor_postgres_poke(self, mock_hook):
         t = SqlSensor(
             task_id='sql_sensor_check',
