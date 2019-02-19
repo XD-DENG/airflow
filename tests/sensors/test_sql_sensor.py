@@ -100,6 +100,7 @@ class SqlSensorTests(unittest.TestCase):
             sql="SELECT 1",
         )
 
+        mock.hook.get_connection.return_value.conn_type.return_value = 'postgres'
         mock_get_records = mock_hook.get_connection.return_value.get_hook.return_value.get_records
 
         mock_get_records.return_value = []
