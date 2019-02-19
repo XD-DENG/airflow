@@ -22,6 +22,7 @@ import unittest
 from airflow import DAG
 from airflow import configuration
 from airflow.exceptions import AirflowException
+from airflow.hooks.postgres_hook import PostgresHook
 from airflow.sensors.sql_sensor import SqlSensor
 from airflow.utils.timezone import datetime
 
@@ -100,7 +101,9 @@ class SqlSensorTests(unittest.TestCase):
             sql="SELECT 1",
         )
 
-        mock.hook.get_connection.return_value.conn_type.return_value = 'postgres'
+        mock_get_connection = mock.hook.get_connection
+        mock_get_connection.return_value = PostgresHook(postgres_conn_id='postgres_default')
+
         mock_get_records = mock_hook.get_connection.return_value.get_hook.return_value.get_records
 
         mock_get_records.return_value = []
