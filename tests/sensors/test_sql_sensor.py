@@ -104,9 +104,6 @@ class SqlSensorTests(unittest.TestCase):
         mock_get_conn = mock_hook.get_connection
         mock_get_conn.return_value = PostgresHook.get_connection('postgres_default')
 
-        mock_get_hook = mock_hook.get_connection.return_value.get_hook
-        mock_get_hook.return_value = PostgresHook(postgres_conn_id='postgres_default')
-
         mock_get_records = mock_hook.get_connection.return_value.get_hook.return_value.get_records
 
         mock_get_records.return_value = []
