@@ -445,6 +445,8 @@ class AirflowSecurityManager(SecurityManager, LoggingMixin):
         admin = self.find_role('Admin')
         existing_perms_vms = set(admin.permissions)
         for p in pvms:
+            if p.permission in DAG_PERMS and p.view_menu != 'all_dags':
+                continue
             if p not in existing_perms_vms:
                 existing_perms_vms.add(p)
         admin.permissions = list(existing_perms_vms)
