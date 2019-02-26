@@ -1320,6 +1320,18 @@ class Airflow(AirflowBaseView):
                     'ry': 5,
                 }
             })
+            if task.task_type == 'ExternalTaskSensor':
+                external_dag_task_info = '{} (DAG: {})'.format(task.external_task_id, task.external_dag_id)
+                nodes.append({
+                    'id': external_dag_task_info,
+                    'value': {
+                        'label': external_dag_task_info,
+                        'labelStyle': "fill:{0};".format(task.ui_fgcolor),
+                        'style': "fill:{0};".format('#C6EC26'),
+                        'rx': 5,
+                        'ry': 5,
+                    }
+                })
 
         def get_upstream(task):
             for t in task.upstream_list:
@@ -1330,6 +1342,14 @@ class Airflow(AirflowBaseView):
                 if edge not in edges:
                     edges.append(edge)
                     get_upstream(t)
+
+            if task.task_type == 'ExternalTaskSensor':
+                edge = {
+                    'u': '{} (DAG: {})'.format(task.external_task_id, task.external_dag_id),
+                    'v': task.task_id
+                }
+                if edge not in edges:
+                    edges.append(edge)
 
         for t in dag.roots:
             get_upstream(t)
