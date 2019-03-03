@@ -1773,6 +1773,8 @@ class SchedulerJob(BaseJob):
             filter(models.DagModel.dag_id.in_([dag.dag_id for dag in dags])).\
             order_by(models.DagModel.last_scheduler_run.desc())
 
+        db_dags_to_process = [i[0] for i in db_dags_to_process]
+
         self._process_dags(dagbag,
                            [dag for dag in dags if dag.dag_id in db_dags_to_process],
                            ti_keys_to_schedule)
