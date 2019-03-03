@@ -1770,7 +1770,7 @@ class SchedulerJob(BaseJob):
         ti_keys_to_schedule = []
 
         db_dags_to_process = session.query(models.DagModel.dag_id).\
-            filter(models.DagModel.dag_id in [dag.dag_id for dag in dags]).\
+            filter(models.DagModel.dag_id.in_([dag.dag_id for dag in dags])).\
             order_by(models.DagModel.last_scheduler_run.desc())
 
         self._process_dags(dagbag,
