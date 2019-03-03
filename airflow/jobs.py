@@ -1407,7 +1407,8 @@ class SchedulerJob(BaseJob):
             self.log.info("Set the following tasks to scheduled state:\n\t{}"
                           .format(task_instance_str))
 
-    def _process_dags(self, dagbag, dags, tis_out):
+    @provide_session
+    def _process_dags(self, dagbag, dags, tis_out, session=None):
         """
         Iterates over the dags and processes them. Processing includes:
 
@@ -1425,6 +1426,21 @@ class SchedulerJob(BaseJob):
         """
         for dag in dags:
             dag = dagbag.get_dag(dag.dag_id)
+
+            db_dag = session.query(models.DagModel).\
+                filter(models.DagModel.dag_id == dag.dag_id).\
+                first()
+
+            if db_dag.scheduler_lock:
+                continue
+            else:
+                try:
+                    db_dag.scheduler_lock = True
+                    db_dag.last_scheduler_run = timezone.utcnow()
+                    session.commit()
+                except Exception:
+                    self.log.warning("Failed to get lock of DAG %s", dag.dag_id)
+
             if dag.is_paused:
                 self.log.info("Not processing DAG %s since it's paused", dag.dag_id)
                 continue
@@ -1440,6 +1456,13 @@ class SchedulerJob(BaseJob):
                 self.log.info("Created %s", dag_run)
             self._process_task_instances(dag, tis_out)
             self.manage_slas(dag)
+
+            try:
+                db_dag.scheduler_lock = False
+                db_dag.last_scheduler_run = timezone.utcnow()
+                session.commit()
+            except Exception:
+                self.log.warning("Failed to release lock of DAG %s", dag.dag_id)
 
     @provide_session
     def _process_executor_events(self, simple_dag_bag, session=None):
@@ -1746,7 +1769,14 @@ class SchedulerJob(BaseJob):
         # returns true?)
         ti_keys_to_schedule = []
 
-        self._process_dags(dagbag, dags, ti_keys_to_schedule)
+        db_dags_to_process = session.query(models.DagModel.dag_id).\
+            filter(models.DagModel.dag_id in [dag.dag_id for dag in dags]).\
+            order_by(models.DagModel.last_scheduler_run.desc()).\
+            first(3)
+
+        self._process_dags(dagbag,
+                           [dag for dag in dags if dag.dag_id in db_dags_to_process],
+                           ti_keys_to_schedule)
 
         for ti_key in ti_keys_to_schedule:
             dag = dagbag.dags[ti_key[0]]
