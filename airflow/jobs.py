@@ -1771,8 +1771,7 @@ class SchedulerJob(BaseJob):
 
         db_dags_to_process = session.query(models.DagModel.dag_id).\
             filter(models.DagModel.dag_id in [dag.dag_id for dag in dags]).\
-            order_by(models.DagModel.last_scheduler_run.desc()).\
-            first(3)
+            order_by(models.DagModel.last_scheduler_run.desc())
 
         self._process_dags(dagbag,
                            [dag for dag in dags if dag.dag_id in db_dags_to_process],
