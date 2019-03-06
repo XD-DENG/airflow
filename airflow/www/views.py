@@ -1327,9 +1327,10 @@ class Airflow(AirflowBaseView):
                     'value': {
                         'label': external_dag_task_info,
                         'labelStyle': "fill:{0};".format(task.ui_fgcolor),
-                        'style': "fill:{0};".format('#C6EC26'),
+                        'style': "fill:{0};".format('#D3D3D3'),
                         'rx': 5,
                         'ry': 5,
+                        'stroke-dasharray': '8,8',
                     }
                 })
 
