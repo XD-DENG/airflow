@@ -648,16 +648,19 @@ class SchedulerJob(BaseJob):
             task = dag.get_task(ti.task_id)
             dttm = ti.execution_date
             if isinstance(task.sla, timedelta):
-                dttm = dag.following_schedule(dttm)
-                while dttm < timezone.utcnow():
-                    following_schedule = dag.following_schedule(dttm)
-                    if following_schedule + task.sla < timezone.utcnow():
-                        session.merge(SlaMiss(
-                            task_id=ti.task_id,
-                            dag_id=ti.dag_id,
-                            execution_date=dttm,
-                            timestamp=ts))
+                if dag._schedule_interval is None:
+                    pass
+                else:
                     dttm = dag.following_schedule(dttm)
+                    while dttm < timezone.utcnow():
+                        following_schedule = dag.following_schedule(dttm)
+                        if following_schedule + task.sla < timezone.utcnow():
+                            session.merge(SlaMiss(
+                                task_id=ti.task_id,
+                                dag_id=ti.dag_id,
+                                execution_date=dttm,
+                                timestamp=ts))
+                        dttm = dag.following_schedule(dttm)
         session.commit()
 
         slas = (
