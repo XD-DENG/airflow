@@ -364,7 +364,8 @@ class DagBag(BaseDagBag, LoggingMixin):
         FileLoadStat = namedtuple(
             'FileLoadStat', "file duration dag_num task_num dags")
 
-        for filepath in list_py_file_paths(dag_folder, safe_mode=safe_mode,
+        for filepath in list_py_file_paths(dag_folder,
+                                           safe_mode=False,
                                            include_examples=include_examples):
             try:
                 ts = timezone.utcnow()
