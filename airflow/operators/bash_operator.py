@@ -31,6 +31,7 @@ from airflow.utils.file import TemporaryDirectory
 from airflow.utils.operator_helpers import context_to_airflow_vars
 
 
+
 class BashOperator(BaseOperator):
     """
     Execute a Bash script, command or set of commands.
@@ -67,7 +68,7 @@ class BashOperator(BaseOperator):
     template_fields = ('bash_command', 'env')
     template_ext = ('.sh', '.bash',)
     ui_color = '#f0ede4'
-
+    
     @apply_defaults
     def __init__(
             self,
