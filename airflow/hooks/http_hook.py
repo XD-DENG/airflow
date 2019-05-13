@@ -82,7 +82,7 @@ class HttpHook(BaseHook):
 
         return session
 
-    def run(self, endpoint, data=None, headers=None, extra_options=None):
+    def run(self, endpoint, data=None, headers=None, auth=None, extra_options=None):
         """
         Performs the request
 
@@ -92,6 +92,8 @@ class HttpHook(BaseHook):
         :type data: dict
         :param headers: additional headers to be passed through as a dictionary
         :type headers: dict
+        :param auth: Auth handler or (user, pass) tuple.
+        :type auth: Auth handler or (user, pass) tuple.
         :param extra_options: additional options to be used when executing the request
             i.e. {'check_response': False} to avoid checking raising exceptions on non
             2XX or 3XX status codes
@@ -113,17 +115,20 @@ class HttpHook(BaseHook):
             req = requests.Request(self.method,
                                    url,
                                    params=data,
+                                   auth=auth,
                                    headers=headers)
         elif self.method == 'HEAD':
             # HEAD doesn't use params
             req = requests.Request(self.method,
                                    url,
+                                   auth=auth,
                                    headers=headers)
         else:
             # Others use data
             req = requests.Request(self.method,
                                    url,
                                    data=data,
+                                   auth=auth,
                                    headers=headers)
 
         prepped_request = session.prepare_request(req)

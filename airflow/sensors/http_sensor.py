@@ -44,6 +44,8 @@ class HttpSensor(BaseSensorOperator):
     :type request_params: a dictionary of string key/value pairs
     :param headers: The HTTP headers to be added to the GET request
     :type headers: a dictionary of string key/value pairs
+    :param auth: Auth handler or (user, pass) tuple.
+    :type auth: Auth handler or (user, pass) tuple.
     :param response_check: A check against the 'requests' response object.
         Returns True for 'pass' and False otherwise.
     :type response_check: A lambda or defined function.
@@ -62,6 +64,7 @@ class HttpSensor(BaseSensorOperator):
                  method='GET',
                  request_params=None,
                  headers=None,
+                 auth=None,
                  response_check=None,
                  extra_options=None, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -69,6 +72,7 @@ class HttpSensor(BaseSensorOperator):
         self.http_conn_id = http_conn_id
         self.request_params = request_params or {}
         self.headers = headers or {}
+        self.auth = auth
         self.extra_options = extra_options or {}
         self.response_check = response_check
 
@@ -82,6 +86,7 @@ class HttpSensor(BaseSensorOperator):
             response = self.hook.run(self.endpoint,
                                      data=self.request_params,
                                      headers=self.headers,
+                                     auth=self.auth,
                                      extra_options=self.extra_options)
             if self.response_check:
                 # run content check on response

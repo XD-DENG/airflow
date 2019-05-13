@@ -39,6 +39,8 @@ class SimpleHttpOperator(BaseOperator):
         for GET a dictionary of key/value string pairs
     :param headers: The HTTP headers to be added to the GET request
     :type headers: a dictionary of string key/value pairs
+    :param auth: Auth handler or (user, pass) tuple.
+    :type auth: Auth handler or (user, pass) tuple.
     :param response_check: A check against the 'requests' response object.
         Returns True for 'pass' and False otherwise.
     :type response_check: A lambda or defined function.
@@ -60,6 +62,7 @@ class SimpleHttpOperator(BaseOperator):
                  method='POST',
                  data=None,
                  headers=None,
+                 auth=None,
                  response_check=None,
                  extra_options=None,
                  http_conn_id='http_default',
@@ -71,6 +74,7 @@ class SimpleHttpOperator(BaseOperator):
         self.endpoint = endpoint
         self.headers = headers or {}
         self.data = data or {}
+        self.auth = auth
         self.response_check = response_check
         self.extra_options = extra_options or {}
         self.log_response = log_response
@@ -85,6 +89,7 @@ class SimpleHttpOperator(BaseOperator):
         response = http.run(self.endpoint,
                             self.data,
                             self.headers,
+                            self.auth,
                             self.extra_options)
         if self.log_response:
             self.log.info(response.text)
