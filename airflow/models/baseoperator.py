@@ -132,6 +132,9 @@ class BaseOperator(LoggingMixin):
         is used by tasks downstream of task X. Note that depends_on_past
         is forced to True wherever wait_for_downstream is used.
     :type wait_for_downstream: bool
+    :param depends_on_past_dagrun: when set to true, task instances will only
+        run when the state of the previous DagRun has succeeded.
+    :type depends_on_past_dagrun: bool
     :param queue: which queue to target when running this job. Not
         all executors implement queue management, the CeleryExecutor
         does support targeting specific queues.
@@ -271,6 +274,7 @@ class BaseOperator(LoggingMixin):
         'start_date',
         'depends_on_past',
         'wait_for_downstream',
+        'depends_on_past_dagrun',
         'priority_weight',
         'sla',
         'execution_timeout',
@@ -298,6 +302,7 @@ class BaseOperator(LoggingMixin):
         end_date: Optional[datetime] = None,
         depends_on_past: bool = False,
         wait_for_downstream: bool = False,
+        depends_on_past_dagrun: bool = False,
         dag: Optional[DAG] = None,
         params: Optional[Dict] = None,
         default_args: Optional[Dict] = None,  # pylint: disable=unused-argument
@@ -368,6 +373,7 @@ class BaseOperator(LoggingMixin):
         if wait_for_downstream:
             self.depends_on_past = True
 
+        self.depends_on_past_dagrun = depends_on_past_dagrun
         self.retries = retries
         self.queue = queue
         self.pool = pool

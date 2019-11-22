@@ -65,6 +65,13 @@ class PrevDagrunDep(BaseTIDep):
                     reason="This task instance was the first task instance for its task.")
                 return
 
+        if ti.task.depends_on_past_dagrun:
+            if last_dagrun.get_state() != State.SUCCESS:
+                yield self._failing_status(
+                    reason="depends_on_past_dagrun is true for this task's DAG, but the previous "
+                           "DagRun is not a successful state.")
+                return
+
         previous_ti = ti.previous_ti
         if not previous_ti:
             yield self._failing_status(
