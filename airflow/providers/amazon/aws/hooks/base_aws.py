@@ -253,56 +253,55 @@ class AwsBaseHook(BaseHook):
         idp_request_kwargs = saml_config["idp_request_kwargs"]
 
         idp_auth_method = saml_config['idp_auth_method']
-        if idp_auth_method == 'http_spegno_auth':
-            # requests_gssapi will need paramiko > 2.6 since you'll need
-            # 'gssapi' not 'python-gssapi' from PyPi.
-            # https://github.com/paramiko/paramiko/pull/1311
-            import requests_gssapi
-            auth = requests_gssapi.HTTPSPNEGOAuth()
-            if 'mutual_authentication' in saml_config:
-                mutual_auth = saml_config['mutual_authentication']
-                if mutual_auth == 'REQUIRED':
-                    auth = requests_gssapi.HTTPSPNEGOAuth(requests_gssapi.REQUIRED)
-                elif mutual_auth == 'OPTIONAL':
-                    auth = requests_gssapi.HTTPSPNEGOAuth(requests_gssapi.OPTIONAL)
-                elif mutual_auth == 'DISABLED':
-                    auth = requests_gssapi.HTTPSPNEGOAuth(requests_gssapi.DISABLED)
-                else:
-                    raise NotImplementedError(
-                        f'mutual_authentication={mutual_auth} in Connection {self.aws_conn_id} Extra.'
-                        'Currently "REQUIRED", "OPTIONAL" and "DISABLED" are supported.'
-                        '(Exclude this setting will default to HTTPSPNEGOAuth() ).')
-
-            # Query the IDP
-            import requests
-            idp_reponse = requests.get(
-                idp_url, auth=auth, **idp_request_kwargs)
-            idp_reponse.raise_for_status()
-
-            # Assist with debugging. Note: contains sensitive info!
-            xpath = saml_config['saml_response_xpath']
-            log_idp_response = 'log_idp_response' in saml_config and saml_config[
-                'log_idp_response']
-            if log_idp_response:
-                self.log.warning(
-                    'The IDP response contains sensitive information,'
-                    ' but log_idp_response is ON (%s).', log_idp_response)
-                self.log.info('idp_reponse.content= %s', idp_reponse.content)
-                self.log.info('xpath= %s', xpath)
-
-            # Extract SAML Assertion from the returned HTML / XML
-            from lxml import etree
-            xml = etree.fromstring(idp_reponse.content)
-            saml_assertion = xml.xpath(xpath)
-            if isinstance(saml_assertion, list):
-                if len(saml_assertion) == 1:
-                    saml_assertion = saml_assertion[0]
-            if not saml_assertion:
-                raise ValueError('Invalid SAML Assertion')
-        else:
+        if idp_auth_method != 'http_spegno_auth':
             raise NotImplementedError(
                 f'idp_auth_method={idp_auth_method} in Connection {self.aws_conn_id} Extra.'
                 'Currently only "http_spegno_auth" is supported, and must be specified.')
+
+        # requests_gssapi will need paramiko > 2.6 since you'll need
+        # 'gssapi' not 'python-gssapi' from PyPi.
+        # https://github.com/paramiko/paramiko/pull/1311
+        import requests_gssapi
+        auth = requests_gssapi.HTTPSPNEGOAuth()
+        if 'mutual_authentication' in saml_config:
+            mutual_auth = saml_config['mutual_authentication']
+            if mutual_auth == 'REQUIRED':
+                auth = requests_gssapi.HTTPSPNEGOAuth(requests_gssapi.REQUIRED)
+            elif mutual_auth == 'OPTIONAL':
+                auth = requests_gssapi.HTTPSPNEGOAuth(requests_gssapi.OPTIONAL)
+            elif mutual_auth == 'DISABLED':
+                auth = requests_gssapi.HTTPSPNEGOAuth(requests_gssapi.DISABLED)
+            else:
+                raise NotImplementedError(
+                    f'mutual_authentication={mutual_auth} in Connection {self.aws_conn_id} Extra.'
+                    'Currently "REQUIRED", "OPTIONAL" and "DISABLED" are supported.'
+                    '(Exclude this setting will default to HTTPSPNEGOAuth() ).')
+
+        # Query the IDP
+        import requests
+        idp_reponse = requests.get(
+            idp_url, auth=auth, **idp_request_kwargs)
+        idp_reponse.raise_for_status()
+
+        # Assist with debugging. Note: contains sensitive info!
+        xpath = saml_config['saml_response_xpath']
+        log_idp_response = 'log_idp_response' in saml_config and saml_config[
+            'log_idp_response']
+        if log_idp_response:
+            self.log.warning(
+                'The IDP response contains sensitive information,'
+                ' but log_idp_response is ON (%s).', log_idp_response)
+            self.log.info('idp_reponse.content= %s', idp_reponse.content)
+            self.log.info('xpath= %s', xpath)
+
+        # Extract SAML Assertion from the returned HTML / XML
+        from lxml import etree
+        xml = etree.fromstring(idp_reponse.content)
+        saml_assertion = xml.xpath(xpath)
+        if not saml_assertion:
+            raise ValueError('Invalid SAML Assertion')
+        if isinstance(saml_assertion, list) and len(saml_assertion) == 1:
+            saml_assertion = saml_assertion[0]
 
         self.log.info(
             "Doing sts_client.assume_role_with_saml to role_arn=%s",
@@ -406,18 +405,17 @@ def _parse_s3_config(config_file_name, config_format="boto", profile=None):
     if conf_format in ("boto", "aws"):  # pragma: no cover
         key_id_option = "aws_access_key_id"
         secret_key_option = "aws_secret_access_key"
-        # security_token_option = 'aws_security_token'
     else:
         key_id_option = "access_key"
         secret_key_option = "secret_key"
     # Actual Parsing
     if cred_section not in sections:
         raise AirflowException("This config file format is not recognized")
-    else:
-        try:
-            access_key = config.get(cred_section, key_id_option)
-            secret_key = config.get(cred_section, secret_key_option)
-        except Exception:
-            logging.warning("Option Error in parsing s3 config file")
-            raise
-        return access_key, secret_key
+
+    try:
+        access_key = config.get(cred_section, key_id_option)
+        secret_key = config.get(cred_section, secret_key_option)
+    except Exception:
+        logging.warning("Option Error in parsing s3 config file")
+        raise
+    return access_key, secret_key
