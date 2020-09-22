@@ -786,8 +786,7 @@ class Airflow(AirflowBaseView):  # noqa: D101  pylint: disable=too-many-public-m
 
         active_runs = models.DagRun.find(
             dag_id=dag_id,
-            state=State.RUNNING,
-            external_trigger=False
+            state=State.RUNNING
         )
 
         return self.render_template(
