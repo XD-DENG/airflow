@@ -1442,8 +1442,8 @@ class SchedulerJob(BaseJob):  # pylint: disable=too-many-instance-attributes
             )
 
             self.executor.queue_command(
-                simple_task_instance,
-                command,
+                simple_task_instance=simple_task_instance,
+                command=command,
                 priority=priority,
                 queue=queue,
             )
