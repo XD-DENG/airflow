@@ -1502,7 +1502,7 @@ class SchedulerJob(BaseJob):  # pylint: disable=too-many-instance-attributes
                 TI._try_number == try_number - 1,  # pylint: disable=protected-access
                 TI.state == State.QUEUED)
                 for dag_id, task_id, execution_date, try_number
-                in self.executor.queued_tasks.keys()])
+                in self.executor.queued_tasks])
         ti_query = session.query(TI).filter(or_(*filter_for_ti_state_change))
         tis_to_set_to_scheduled: List[TI] = ti_query.with_for_update().all()
         if not tis_to_set_to_scheduled:
@@ -1515,7 +1515,7 @@ class SchedulerJob(BaseJob):  # pylint: disable=too-many-instance-attributes
         )
 
         for task_instance in tis_to_set_to_scheduled:
-            self.executor.queued_tasks.pop(task_instance.key)
+            self.executor.queued_tasks.remove(task_instance.key)
 
         task_instance_str = "\n\t".join(repr(x) for x in tis_to_set_to_scheduled)
         self.log.info("Set the following tasks to scheduled state:\n\t%s", task_instance_str)
