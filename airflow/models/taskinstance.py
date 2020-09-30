@@ -1943,6 +1943,14 @@ class SimpleTaskInstance:
             ti = qry.first()
         return ti
 
+    def __lt__(self, other):
+        return ((self._execution_date, self._dag_id, self._task_id, self._start_date) <
+                (other._execution_date, other._dag_id, other._task_id, other._start_date))
+
+    def __le__(self, other):
+        return ((self._execution_date, self._dag_id, self._task_id, self._start_date) <=
+                (other._execution_date, other._dag_id, other._task_id, other._start_date))
+
 
 STATICA_HACK = True
 globals()['kcah_acitats'[::-1].upper()] = False
