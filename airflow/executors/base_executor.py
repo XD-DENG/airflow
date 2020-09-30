@@ -80,6 +80,7 @@ class BaseExecutor(LoggingMixin):
             self.queued_tasks.add(simple_task_instance.key)
             # heapq provides a min heap, while we need a max heap here
             # so we use `-priority` as the 1st element of the items
+            self.log.info("XD!:", priority, type(priority), dir(priority))
             heappush(self.queued_tasks_priority_queue, (-priority,
                                                         (command, priority, queue, simple_task_instance)))
         else:
