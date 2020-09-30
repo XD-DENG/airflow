@@ -1944,8 +1944,8 @@ class SimpleTaskInstance:
         return ti
 
     def __lt__(self, other):
-        return ((self._execution_date, self._dag_id, self._task_id, self._start_date) <
-                (other._execution_date, other._dag_id, other._task_id, other._start_date))
+        return ((self._dag_id, self._task_id) <
+                (other._dag_id, other._task_id))
 
 
 STATICA_HACK = True
