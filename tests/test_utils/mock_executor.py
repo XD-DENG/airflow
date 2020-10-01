@@ -58,12 +58,14 @@ class MockExecutor(BaseExecutor):
 
             open_slots = self.parallelism - len(self.running)
             for _ in range(min((open_slots, len(self.queued_tasks)))):
-                self.log.info("XDDEBUG-pos1: ", self.queued_tasks)
-                self.log.info("XDDEBUG-pos1: ", self.queued_tasks_priority_queue)
+                self.log.info("XDDEBUG-pos1: ")
+                self.log.info(self.queued_tasks)
+                self.log.info(self.queued_tasks_priority_queue)
                 _, (_, _, _, simple_ti) = heappop(self.queued_tasks_priority_queue)
                 key = simple_ti.key
-                self.log.info("XDDEBUG-pos2: ", self.queued_tasks)
-                self.log.info("XDDEBUG-pos2: ", self.queued_tasks_priority_queue)
+                self.log.info("XDDEBUG-pos2: ")
+                self.log.info(self.queued_tasks)
+                self.log.info(self.queued_tasks_priority_queue)
                 self.queued_tasks.remove(key)
                 state = self.mock_task_results[key]
                 ti = simple_ti.construct_task_instance(session=session, lock_for_update=True)
