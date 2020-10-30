@@ -1950,6 +1950,10 @@ class TaskInstance(Base, LoggingMixin):  # pylint: disable=R0902,R0904
             for ti in tis
         )
 
+    def __lt__(self, other):
+        return ((self.dag_id, self.task_id) <
+                (other.dag_id, other.task_id))
+
 
 # State of the task instance.
 # Stores string version of the task state.
@@ -2053,6 +2057,10 @@ class SimpleTaskInstance:
         else:
             ti = qry.first()
         return ti
+
+    def __lt__(self, other):
+        return ((self._dag_id, self._task_id) <
+                (other._dag_id, other._task_id))
 
 
 STATICA_HACK = True
