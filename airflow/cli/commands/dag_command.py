@@ -49,6 +49,7 @@ from airflow.utils.state import State
 
 
 @cli_utils.action_logging
+@suppress_logs_and_warning()
 def dag_backfill(args, dag=None):
     """Creates backfill job or dry run for a DAG"""
     logging.basicConfig(level=settings.LOGGING_LEVEL, format=settings.SIMPLE_LOG_FORMAT)
@@ -118,6 +119,7 @@ def dag_backfill(args, dag=None):
 
 
 @cli_utils.action_logging
+@suppress_logs_and_warning()
 def dag_trigger(args):
     """Creates a dag run for the specified dag"""
     api_client = get_current_api_client()
@@ -131,6 +133,7 @@ def dag_trigger(args):
 
 
 @cli_utils.action_logging
+@suppress_logs_and_warning()
 def dag_delete(args):
     """Deletes all DB records related to the specified dag"""
     api_client = get_current_api_client()
@@ -169,6 +172,7 @@ def set_is_paused(is_paused, args):
     print("Dag: {}, paused: {}".format(args.dag_id, str(is_paused)))
 
 
+@suppress_logs_and_warning()
 def dag_show(args):
     """Displays DAG or saves it's graphic representation to the file"""
     dag = get_dag(args.subdir, args.dag_id)
@@ -214,6 +218,7 @@ def _save_dot_to_file(dot: Dot, filename: str):
 
 
 @cli_utils.action_logging
+@suppress_logs_and_warning()
 def dag_state(args):
     """
     Returns the state (and conf if exists) of a DagRun at the command line.
@@ -235,6 +240,7 @@ def dag_state(args):
 
 
 @cli_utils.action_logging
+@suppress_logs_and_warning()
 def dag_next_execution(args):
     """
     Returns the next execution datetime of a DAG at the command line.
@@ -377,6 +383,7 @@ def dag_list_dag_runs(args, dag=None):
 
 @provide_session
 @cli_utils.action_logging
+@suppress_logs_and_warning()
 def dag_test(args, session=None):
     """Execute one single DagRun for a given DAG and execution date, using the DebugExecutor."""
     dag = get_dag(subdir=args.subdir, dag_id=args.dag_id)
