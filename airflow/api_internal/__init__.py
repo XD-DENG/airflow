@@ -14,33 +14,3 @@
 # KIND, either express or implied.  See the License for the
 # specific language governing permissions and limitations
 # under the License.
----
-version: "3.7"
-services:
-  openldap:
-    image: ghcr.io/apache/airflow-openldap:2.4.50-2021.07.04
-    command: "--copy-service"
-    environment:
-      - LDAP_DOMAIN=example.com
-      - LDAP_ADMIN_PASSWORD=insecure
-      - LDAP_CONFIG_PASSWORD=insecure
-    volumes:
-      - ../openldap/ldif:/container/service/slapd/assets/config/bootstrap/ldif/custom:ro
-      - /dev/urandom:/dev/random   # Required to get non-blocking entropy source
-      - openldap-db-volume:/var/lib/ldap
-    healthcheck:
-      test: 'ss -ltp | grep 389'
-      interval: 5s
-      timeout: 30s
-      retries: 50
-    restart: "on-failure"
-
-  airflow:
-    environment:
-      - INTEGRATION_OPENLDAP=true
-    depends_on:
-      openldap:
-        condition: service_healthy
-
-volumes:
-  openldap-db-volume:
