@@ -563,7 +563,7 @@ jobs:
       - name: "Static checks"
         run: breeze static-checks --all-files --show-diff-on-failure --color always
         env:
-          VERBOSE: "false"
+          VERBOSE: "true"
           SKIP: ${{ needs.build-info.outputs.skip-pre-commits }}
           COLUMNS: "250"
           SKIP_GROUP_OUTPUT: "true"
@@ -618,7 +618,7 @@ jobs:
           breeze static-checks --all-files --show-diff-on-failure --color always
           --commit-ref "${{ github.sha }}"
         env:
-          VERBOSE: "false"
+          VERBOSE: "true"
           SKIP_IMAGE_PRE_COMMITS: "true"
           SKIP: ${{ needs.build-info.outputs.skip-pre-commits }}
           COLUMNS: "250"
@@ -1244,7 +1244,7 @@ jobs:
           PYTHON_VERSIONS: ${{ needs.build-info.outputs.python-versions-list-as-string }}
           KUBERNETES_VERSIONS: ${{needs.build-info.outputs.kubernetes-versions-list-as-string}}
           EXECUTOR: ${{matrix.executor}}
-          VERBOSE: false
+          VERBOSE: true
       - name: Upload KinD logs on failure ${{needs.build-info.outputs.kubernetes-combos}}
         uses: actions/upload-artifact@v3
         if: failure() || cancelled()
