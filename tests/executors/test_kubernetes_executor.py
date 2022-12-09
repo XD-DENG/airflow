@@ -732,6 +732,7 @@ class TestKubernetesExecutor:
         }
         with conf_vars(config):
             executor = KubernetesExecutor()
+            executor.end()
 
         assert executor.kube_config.multi_namespace_mode_namespace_list == expected_value_in_kube_config
 
@@ -863,6 +864,7 @@ class TestKubernetesExecutor:
             executor.job_id = "123"
             executor.start()
             executor._check_worker_pods_pending_timeout()
+            executor.end()
 
         assert mock_kube_client.list_namespaced_pod.call_count == 3
         mock_kube_client.list_namespaced_pod.assert_has_calls(
